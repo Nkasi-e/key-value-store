@@ -1,7 +1,4 @@
 //! Mini Database CLI
-//! 
-//! This is the main entry point for the mini database application.
-//! It provides both server and client functionality through command-line interface.
 
 use clap::{Parser, Subcommand};
 use tracing_subscriber;
@@ -44,27 +41,13 @@ enum Commands {
 #[derive(Subcommand)]
 enum ClientCommands {
     /// Get a value by key
-    Get { 
-        /// The key to retrieve
-        key: String 
-    },
+    Get { key: String },
     /// Set a key-value pair
-    Set { 
-        /// The key to set
-        key: String, 
-        /// The value to store
-        value: String 
-    },
+    Set { key: String, value: String },
     /// Delete a key
-    Delete { 
-        /// The key to delete
-        key: String 
-    },
+    Delete { key: String },
     /// Check if key exists
-    Exists { 
-        /// The key to check
-        key: String 
-    },
+    Exists { key: String },
     /// List all keys
     Keys,
     /// Get the number of keys
@@ -77,9 +60,7 @@ enum ClientCommands {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Initialize logging
     tracing_subscriber::fmt::init();
-
     let cli = Cli::parse();
 
     match cli.command {

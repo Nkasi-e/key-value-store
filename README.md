@@ -52,6 +52,7 @@ src/
 ### Prerequisites
 
 - Rust 1.70+ (with Cargo)
+- Make (for convenient commands)
 - Basic understanding of command-line interfaces
 
 ### Installation
@@ -61,53 +62,94 @@ src/
 3. Build the project:
 
 ```bash
+make build
+# or
 cargo build
 ```
 
 ### Running the Server
 
-Start the database server:
+Start the database server using Make:
 
 ```bash
-cargo run -- server --addr 127.0.0.1:8080 --storage my-database.json
+make run-server
+# or with custom settings
+make run-server SERVER_ADDR=127.0.0.1:8080 STORAGE_FILE=my-database.json
 ```
 
 You should see:
 ```
 🚀 Starting mini database server...
-📡 Listening on: 127.0.0.1:8080
-💾 Storage file: my-database.json
-📝 Logs will appear below:
+📡 Address: 127.0.0.1:8080
+💾 Storage: mini-db.json
+📝 Press Ctrl+C to stop
 
 2024-01-01T12:00:00Z INFO mini_database server listening on 127.0.0.1:8080
 ```
 
 ### Using the Client
 
-In a **new terminal**, run client commands:
+In a **new terminal**, run client commands using Make:
 
 ```bash
 # Ping the server
-cargo run -- client --addr 127.0.0.1:8080 ping
+make ping
 
 # Set a key-value pair
-cargo run -- client --addr 127.0.0.1:8080 set "name" "Alice"
+make set KEY=name VALUE=Alice
 
 # Get a value
-cargo run -- client --addr 127.0.0.1:8080 get "name"
+make get KEY=name
 
 # List all keys
-cargo run -- client --addr 127.0.0.1:8080 keys
+make keys
 
 # Get count of items
-cargo run -- client --addr 127.0.0.1:8080 len
+make len
 
 # Delete a key
-cargo run -- client --addr 127.0.0.1:8080 delete "name"
+make delete KEY=name
 
 # Clear all data
-cargo run -- client --addr 127.0.0.1:8080 clear
+make clear
 ```
+
+### Available Make Commands
+
+Run `make help` to see all available commands:
+
+```bash
+make help
+```
+
+**Build Commands:**
+- `make build` - Build the project
+- `make check` - Check the project without building
+- `make clean` - Clean build artifacts
+
+**Server Commands:**
+- `make run-server` - Start the database server
+- `make run-server-dev` - Start server with development settings
+
+**Client Commands:**
+- `make ping` - Ping the server
+- `make set KEY=name VALUE=Alice` - Set a key-value pair
+- `make get KEY=name` - Get a value by key
+- `make delete KEY=name` - Delete a key
+- `make keys` - List all keys
+- `make len` - Get count of items
+- `make clear` - Clear all data
+
+**Testing Commands:**
+- `make test` - Run all tests
+- `make test-basic` - Run basic functionality test
+- `make test-concurrent` - Run concurrent access test
+- `make demo` - Run a complete demo
+
+**Development Commands:**
+- `make fmt` - Format the code
+- `make clippy` - Run clippy linter
+- `make dev-setup` - Set up development environment
 
 ## 📚 Available Commands
 
@@ -240,47 +282,132 @@ The client and server communicate using JSON over TCP:
 
 ## 🧪 Testing the System
 
-### Basic Functionality Test
+### Quick Testing with Make
+
+The easiest way to test the system is using the provided Make commands:
+
+```bash
+# Run a complete demo
+make demo
+
+# Run basic functionality test
+make test-basic
+
+# Run concurrent access test
+make test-concurrent
+
+# Run all tests
+make test
+```
+
+### Manual Testing
+
+#### Basic Functionality Test
 
 1. **Start the server**:
    ```bash
+   make run-server
+   # or
    cargo run -- server --addr 127.0.0.1:8080 --storage test-db.json
    ```
 
 2. **Test basic operations**:
    ```bash
-   # Set data
+   # Using Make (recommended)
+   make set KEY=name VALUE=Alice
+   make set KEY=age VALUE=25
+   make get KEY=name
+   make get KEY=age
+   make keys
+   make len
+   
+   # Or using cargo directly
    cargo run -- client --addr 127.0.0.1:8080 set "name" "Alice"
    cargo run -- client --addr 127.0.0.1:8080 set "age" "25"
-   
-   # Retrieve data
    cargo run -- client --addr 127.0.0.1:8080 get "name"
    cargo run -- client --addr 127.0.0.1:8080 get "age"
-   
-   # List keys
    cargo run -- client --addr 127.0.0.1:8080 keys
-   
-   # Get count
    cargo run -- client --addr 127.0.0.1:8080 len
    ```
 
 3. **Test persistence**:
    - Stop the server (Ctrl+C)
    - Restart the server
-   - Check if data persisted: `cargo run -- client --addr 127.0.0.1:8080 keys`
+   - Check if data persisted: `make keys`
 
 ### Concurrent Access Test
 
-Open multiple terminals and run client commands simultaneously to test thread safety.
+Open multiple terminals and run client commands simultaneously to test thread safety:
+
+```bash
+# Terminal 1
+make set KEY=client1 VALUE=data1
+
+# Terminal 2  
+make set KEY=client2 VALUE=data2
+
+# Terminal 3
+make set KEY=client3 VALUE=data3
+```
 
 ### Error Handling Test
 
 ```bash
 # Try to get non-existent key
-cargo run -- client --addr 127.0.0.1:8080 get "nonexistent"
+make get KEY=nonexistent
 
 # Try to delete non-existent key
-cargo run -- client --addr 127.0.0.1:8080 delete "nonexistent"
+make delete KEY=nonexistent
+```
+
+## 🛠️ Makefile Features
+
+The project includes a comprehensive Makefile that provides convenient commands for:
+
+### **Build Management**
+- `make build` - Build the project
+- `make check` - Check without building
+- `make clean` - Clean artifacts and storage files
+- `make release` - Build optimized release version
+
+### **Development Workflow**
+- `make fmt` - Format code with rustfmt
+- `make clippy` - Run clippy linter
+- `make dev-setup` - Set up development environment
+- `make info` - Show project information
+
+### **Server Management**
+- `make run-server` - Start server with default settings
+- `make run-server-dev` - Start server with debug logging
+- `make stop` - Stop running server processes
+
+### **Client Operations**
+- `make ping` - Ping the server
+- `make set KEY=name VALUE=Alice` - Set key-value pair
+- `make get KEY=name` - Get value by key
+- `make delete KEY=name` - Delete key
+- `make keys` - List all keys
+- `make len` - Get item count
+- `make clear` - Clear all data
+
+### **Automated Testing**
+- `make test` - Run all unit tests
+- `make test-basic` - Automated basic functionality test
+- `make test-concurrent` - Automated concurrent access test
+- `make demo` - Complete feature demonstration
+
+### **Configuration**
+You can customize the Makefile behavior with environment variables:
+
+```bash
+# Custom server address
+make run-server SERVER_ADDR=0.0.0.0:9090
+
+# Custom storage file
+make run-server STORAGE_FILE=production-db.json
+
+# Custom settings for client commands
+make get KEY=name SERVER_ADDR=127.0.0.1:9090
 ```
 
 ## 📖 Learning Objectives
